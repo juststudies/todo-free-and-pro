@@ -12,6 +12,7 @@ const users = [];
 function checksExistsUserAccount(request, response, next) {
   const { username } = request.headers;
   const user = users.find(user=> user.username === username);
+  
   if(!user){
     return response.status(404).json({
       error:"User not found!"
@@ -40,20 +41,20 @@ function checksTodoExists(request, response, next) {
   const { username } = request.headers;
   const { id } = request.params;
 
+  if(!validate(id)){
+    return response.status(400).json({error: "It is not an UUID"});
+  }
+
   const validUser = users.find(user => user.username === username);
   
-  if(!validate(id)){
-    return response.status(400).json({message: "It is not an UUID"});
-  }
-  
   if(!validUser){
-    return response.status(404).json({message: "User does not exists"});
+    return response.status(404).json({error: "User does not exists"});
   }
   
-  const validTodo = validUser.todos.find(todo=> todo.id === id);
+  const validTodo = validUser.todos.find(todo => todo.id == id);
   
   if(!validTodo){
-    return response.status(404).json({message: "Todo does not exists"});
+    return response.status(404).json({error: "Todo does not exists"});
   }
 
   request.user = validUser;
@@ -64,7 +65,17 @@ function checksTodoExists(request, response, next) {
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const { id } = request.params;
+  
+  const userExists = users.find(user => user.id === id);
+
+  if(!userExists){
+    return response.status(404).json({message: "User id not found!"});
+  }
+
+  request.user = userExists;
+  return next();
+  
 }
 
 app.post('/users', (request, response) => {
