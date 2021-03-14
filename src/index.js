@@ -18,6 +18,7 @@ function checksExistsUserAccount(request, response, next) {
     });
   }
 
+  request.user = user;
   return next();
 }
 
@@ -36,7 +37,30 @@ function checksCreateTodosUserAvailability(request, response, next) {
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const { id } = request.params;
+
+  const validUser = users.find(user => user.username === username);
+  
+  if(!validate(id)){
+    return response.status(400).json({message: "It is not an UUID"});
+  }
+  
+  if(!validUser){
+    return response.status(404).json({message: "User does not exists"});
+  }
+  
+  const validTodo = validUser.todos.find(todo=> todo.id === id);
+  
+  if(!validTodo){
+    return response.status(404).json({message: "Todo does not exists"});
+  }
+
+  request.user = validUser;
+  request.todo = validTodo;
+  
+  return next();
+  
 }
 
 function findUserById(request, response, next) {
