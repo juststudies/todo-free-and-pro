@@ -10,11 +10,29 @@ app.use(cors());
 const users = [];
 
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+  const user = users.find(user=> user.username === username);
+  if(!user){
+    return response.status(404).json({
+      error:"User not found!"
+    });
+  }
+
+  return next();
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+  const {user} = request;
+  const {todos, pro} = user;
+  
+  if(Object.keys(todos).length >= 10 && pro === false){
+    return response.status(403).json({
+      message: "Your free account have 10 limited todos. Consider to be a PRO"
+    });
+  }
+
+  return next();
+
 }
 
 function checksTodoExists(request, response, next) {
